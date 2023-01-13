@@ -43,9 +43,10 @@ entity top_cdr_fpga is
     g_out_phase             : real     := 90.0 
     );
   port (
-    sysclk_p_i    : in  std_logic;
-    sysclk_n_i    : in  std_logic;
-    data_to_rec_i : in  std_logic;
+    sysclk_i      : in  std_logic;
+--    sysclk_n_i    : in  std_logic;
+    data_to_rec_p_i : in  std_logic;
+    data_to_rec_n_i : in  std_logic;
     -- cdrclk_o  : out std_logic;
     cdrclk_p_o    : out std_logic;
     cdrclk_n_o    : out std_logic;
@@ -53,10 +54,7 @@ entity top_cdr_fpga is
     cdrclk_n_i    : in  std_logic;
     cdrclk_jc_p_o : out std_logic;
     cdrclk_jc_n_o : out std_logic;
-    led3_o        : out std_logic;
-    led2_o        : out std_logic;
-    led1_o        : out std_logic;
-    led_o         : out std_logic;
+    led_o         : out std_logic_vector(3 downto 0);
     -- debug
     shifting_o    : out std_logic;
     shifting_en_o : out std_logic
@@ -130,16 +128,18 @@ begin  -- architecture rtl
   -----------------------------------------------------------------------------
   -- Input Buffer
   -----------------------------------------------------------------------------
-  IBUFDS_inst : IBUFDS
-    generic map (
-      DIFF_TERM    => false,            -- Differential Termination 
-      IBUF_LOW_PWR => true,  -- Low power (TRUE) vs. performance (FALSE) setting for referenced I/O standards
-      IOSTANDARD   => "DEFAULT")
-    port map (
-      O  => s_sysclk,                   -- Buffer output
-      I  => sysclk_p_i,  -- Diff_p buffer input (connect directly to top-level port)
-      IB => sysclk_n_i  -- Diff_n buffer input (connect directly to top-level port)
-      );
+ -- IBUFDS_inst : IBUFDS
+ --   generic map (
+ --     DIFF_TERM    => false,            -- Differential Termination 
+ --     IBUF_LOW_PWR => true,  -- Low power (TRUE) vs. performance (FALSE) setting for referenced I/O standards
+ --     IOSTANDARD   => "DEFAULT")
+ --   port map (
+ --     O  => s_sysclk,                   -- Buffer output
+ --     I  => sysclk_p_i,  -- Diff_p buffer input (connect directly to top-level port)
+ --     IB => sysclk_n_i  -- Diff_n buffer input (connect directly to top-level port)
+ --     );
+
+    s_sysclk <= sysclk_i;
 
   -----------------------------------------------------------------------------
   -- Clk Manager
@@ -252,18 +252,18 @@ begin  -- architecture rtl
   -----------------------------------------------------------------------------
   -- VIO Generation
   -----------------------------------------------------------------------------
-  G_VIO_GENERATION : if g_gen_vio generate
-
-    i_vio : entity work.vio_0
-      port map (
-        clk        => s_clk_250_vio,
-        probe_out0 => M_i,
-        probe_out1 => vio_DTMD_en
-        );
-
-    s_s_M <= M_i;
-
-  end generate G_VIO_GENERATION;
+--  G_VIO_GENERATION : if g_gen_vio generate
+--
+--    i_vio : entity work.vio_0
+--      port map (
+--        clk        => s_clk_250_vio,
+--        probe_out0 => M_i,
+--        probe_out1 => vio_DTMD_en
+--        );
+--
+--    s_s_M <= M_i;
+--
+--  end generate G_VIO_GENERATION;
 
   G_FIXED_M : if not g_gen_vio generate
 
@@ -426,10 +426,10 @@ begin  -- architecture rtl
   -----------------------------------------------------------------------------
   -- LED Control
   -----------------------------------------------------------------------------
-  led_o  <= s_jc_locked;
-  led1_o <= s_jc_locked_2;
-  led2_o <= s_locked;
-  led3_o <= s_data_pulse;
+  led_o(0)  <= s_jc_locked;
+  led_o(1) <= s_jc_locked_2;
+  led_o(2) <= s_locked;
+  led_o(3) <= s_data_pulse;
 
   i_slow_pulse_counter_1 : entity work.slow_pulse_counter
     generic map (
@@ -451,14 +451,25 @@ begin  -- architecture rtl
 
   -- s_data_to_rec <= data_to_rec_i;
 
-  IBUF_inst : IBUF
+  IBUFDS_data_to_rec_i : IBUFDS
     generic map (
+      DIFF_TERM    => false,            -- Differential Termination 
       IBUF_LOW_PWR => true,  -- Low power (TRUE) vs. performance (FALSE) setting for referenced I/O standards
       IOSTANDARD   => "DEFAULT")
     port map (
-      O => s_data_to_rec,               -- Buffer output
-      I => data_to_rec_i  -- Buffer input (connect directly to top-level port)
+      O  => s_data_to_rec,                   -- Buffer output
+      I  => data_to_rec_p_i,  -- Diff_p buffer input (connect directly to top-level port)
+      IB => data_to_rec_n_i  -- Diff_n buffer input (connect directly to top-level port)
       );
+
+--  IBUF_inst : IBUF
+--    generic map (
+--      IBUF_LOW_PWR => true,  -- Low power (TRUE) vs. performance (FALSE) setting for referenced I/O standards
+--      IOSTANDARD   => "DEFAULT")
+--    port map (
+--      O => s_data_to_rec,               -- Buffer output
+--      I => data_to_rec_i  -- Buffer input (connect directly to top-level port)
+--      );
 
   -----------------------------------------------------------------------------
   -- Phase and Frequency Detector
