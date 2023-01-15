@@ -300,7 +300,7 @@ begin  -- architecture rtl
       g_use_ip      => false,
       g_bandwidth   => "LOW",
       g_last        => false,
-      g_mult_period => freq_to_mmcm(g_freq_out)
+      g_mult_period => 4.0 -- freq_to_mmcm(g_freq_out)
       )
     port map (
       clk_in  => s_cdrclk,
@@ -313,7 +313,7 @@ begin  -- architecture rtl
     generic map (
       g_bandwidth   => "OPTIMIZED",
       g_last        => true,
-      g_mult_period => freq_to_mmcm(g_freq_out),
+      g_mult_period => 4.0, -- freq_to_mmcm(g_freq_out),
       g_out_phase   => g_out_phase
       )
     port map (
