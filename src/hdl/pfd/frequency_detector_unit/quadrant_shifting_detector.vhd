@@ -215,8 +215,8 @@ begin  -- architecture rtl
         s_shifting          <= '0';
         s_shifting_detected <= '0';
       --
-      when others =>
-        null;
+    --  when others =>
+    --    null;
     --
     end case;
   end process p_update_output;

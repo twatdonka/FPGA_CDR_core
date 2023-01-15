@@ -123,8 +123,8 @@ begin  -- architecture rtl
         s_quadrant_rdy <= '1';
         s_quadrant     <= "11";
       --
-      when others =>
-        null;
+--      when others =>
+--        null;
     --
     end case;
   end process p_update_output;
