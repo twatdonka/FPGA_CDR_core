@@ -54,6 +54,8 @@ entity top_cdr_fpga is
     cdrclk_n_i    : in  std_logic;
     cdrclk_jc_p_o : out std_logic;
     cdrclk_jc_n_o : out std_logic;
+    sysclk_low_o      : out std_logic;
+    sysclk_locked_o   : out std_logic;
     led_o         : out std_logic_vector(3 downto 0);
     -- debug
     shifting_o    : out std_logic;
@@ -140,6 +142,7 @@ begin  -- architecture rtl
  --     );
 
     s_sysclk <= sysclk_i;
+    sysclk_low_o <= s_clk_sys;
 
   -----------------------------------------------------------------------------
   -- Clk Manager
@@ -179,6 +182,7 @@ begin  -- architecture rtl
       );
 
   s_sysclk_locked_rst <= not s_sysclk_locked;
+  sysclk_locked_o   <= s_sysclk_locked;
 
   -- Define nominal jump size to start
   i_M_start <= freq_to_m(g_freq_in, g_freq_out, g_multiplication_factor, g_number_of_bits);
