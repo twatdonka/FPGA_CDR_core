@@ -26,7 +26,6 @@ use UNISIM.VComponents.all;
 
 entity jitter_cleaner is
   generic (
-    g_use_ip      : boolean := true;
     g_bandwidth   : string  := "LOW";
     g_last        : boolean := true;
     g_mult_period : real    := 4.0
@@ -46,21 +45,7 @@ architecture rtl of jitter_cleaner is
   signal s_clk_bufg : std_logic;
   signal s_locked   : std_logic;
 
-  component clk_wiz_0
-    port
-      (                                 -- Clock in ports
-        -- Clock out ports
-        clk_out1 : out std_logic;
-        -- Status and control signals
-        locked   : out std_logic;
-        clk_in1  : in  std_logic
-        );
-  end component;
-
-
 begin  -- architecture rtl
-
-  use_primitive : if not g_use_ip generate
 
     MMCME2_ADV_inst : MMCME2_ADV
       generic map (
@@ -178,22 +163,6 @@ begin  -- architecture rtl
     GEN_NO_BUFG : if not g_last generate
       clk_out <= s_clk_bufg;
     end generate GEN_NO_BUFG;
-
-  end generate use_primitive;
-
-  use_clk_wiz : if g_use_ip generate
-
-    clk_wiz_inst : clk_wiz_0
-      port map (
-        -- Clock out ports  
-        clk_out1 => clk_out,
-        -- Status and control signals                
-        locked   => s_locked,
-        -- Clock in ports
-        clk_in1  => clk_in
-        );
-
-  end generate use_clk_wiz;
 
   locked <= s_locked;
 

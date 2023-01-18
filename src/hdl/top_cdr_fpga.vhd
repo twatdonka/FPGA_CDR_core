@@ -38,9 +38,9 @@ entity top_cdr_fpga is
     g_check_pd              : boolean  := false;
     g_number_of_bits        : positive := 28;
     g_multiplication_factor : positive := 3;
-    g_freq_in               : real     := 125.0;
-    g_freq_out              : real     := 125.0;
-    g_out_phase             : real     := 90.0 
+    g_freq_in               : positive := 125_000_000;
+    g_freq_out              : positive := 125_000_000;
+    g_out_phase             : positive := 90 
     );
   port (
     sysclk_i      : in  std_logic;
@@ -301,7 +301,6 @@ begin  -- architecture rtl
   -----------------------------------------------------------------------------
   i_jitter_cleaner_1 : entity work.jitter_cleaner
     generic map (
-      g_use_ip      => false,
       g_bandwidth   => "LOW",
       g_last        => false,
       g_mult_period => 4.0 -- freq_to_mmcm(g_freq_out)
@@ -318,7 +317,7 @@ begin  -- architecture rtl
       g_bandwidth   => "OPTIMIZED",
       g_last        => true,
       g_mult_period => 4.0, -- freq_to_mmcm(g_freq_out),
-      g_out_phase   => g_out_phase
+      g_out_phase   => real(g_out_phase)
       )
     port map (
       clk_in       => s_cdrclk_jc,
